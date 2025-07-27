@@ -16,7 +16,7 @@
 # developing, testing, and shipping real-world software.
 #
 # 📌 Milestones:
-# [ ] Detect and move .pdf files into a "PDF Files" folder
+# [ ] Detect and move .pdf files into a "PDF Files" folder✅
 # [ ] Add support for other file types using a dictionary (Images, Videos, Docs, etc.)
 # [ ] Implement command-line arguments (target folder, dry-run, etc.)
 # [ ] Refactor into functions and use OOP for extensibility
@@ -43,14 +43,28 @@
 
 
 import os
+import shutil
 
 def move_pdfs(folder_name):
+
     try:
         items = os.listdir(folder_name)
         print("Number of Items Found: ", len(items))
-        print("📂 Items In Folder: ", items)
+        # print("📂 Items In Folder: ", items)
     except FileNotFoundError:
         print("❌ Folder not found. Check your path.")
+        return
+
+    for item in items:
+        # Full Path of File require to change it position later
+        full_path = os.path.join(folder_name, item)
+        #checking if full_path it ends with a pdf
+        if os.path.isfile(full_path) and full_path.lower().endswith(".pdf"):
+            pdf_folder = os.path.join(folder_name, "PDF Files")
+            os.makedirs(pdf_folder, exist_ok=True)  # Creates if not exists
+            dest_path = os.path.join(pdf_folder, item)
+            shutil.move(full_path, dest_path)
+            print(f"📄 Moved: {item}")
 
 
 if __name__ == '__main__':
