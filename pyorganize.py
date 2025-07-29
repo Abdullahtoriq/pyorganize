@@ -41,12 +41,11 @@
 
 #shutil.move() – move file from A to B
 
-
 import os
 import shutil
 import argparse
 
-
+# 🔖 File Type Mapping
 FILE_MAP = {
     # Documents
     "PDF Files": [".pdf"],
@@ -81,57 +80,83 @@ FILE_MAP = {
     "Other Files": [".log", ".bak", ".tmp"]
 }
 
+# 🎯 Argument Parser
 def parse_args():
-    parser = argparse.ArgumentParser(description="Organize Your Files if you give folder Extension")
-    parser.add_argument("--path", type=str,required= True , help="Folder To scan")
-    parser.add_argument("--dry_run", action="store_true", help="Show actions without moving files.")
-    parser.add_argument("--verbose", action="store_true", help="Print Each File Which is being Moved")
+    parser = argparse.ArgumentParser(description="Organize Your Files by Extension")
+    parser.add_argument("--path", type=str, required=True, help="Folder to scan")
+    parser.add_argument("--dry_run", action="store_true", help="Show what would be moved, don't perform")
+    parser.add_argument("--verbose", action="store_true", help="Show each file being moved")
     return parser.parse_args()
 
-def move_file_type(folder_name, dry_run = False, verbose = False):
+# 🧠 File Organizer Class
+class FileOrganizer:
+    def __init__(self, path, dry_run=False, verbose=False):
+        self.path = path
+        self.dry_run = dry_run
+        self.verbose = verbose
 
-    try:
-        items = os.listdir(folder_name)
-        print("Number of Items Found: ", len(items))
-        # print("📂 Items In Folder: ", items)
-    except FileNotFoundError:
-        print("❌ Folder not found. Check your path.")
-        return
+    def organize(self):
+        try:
+            items = os.listdir(self.path)
+            print("Number of Items Found:", len(items))
+        except FileNotFoundError:
+            print("❌ Folder not found. Check your path.")
+            return
+
+        moved_any = False  # Track if any file was moved or would be moved
+        for item in items:
+            full_path = os.path.join(self.path, item)
+
+            if not os.path.isfile(full_path):
+                if self.verbose:
+                    print(f"[Verbose] Skipping non-file: {item}")
+                continue
+
+            ext = os.path.splitext(item)[1].lower()
+            if self.verbose:
+                print(f"[Verbose] Checking file: {item} (.{ext})")
+
+            matched = False
+            for folder, extensions in FILE_MAP.items():
+                if ext in extensions:
+                    matched = True
+                    destination_folder = os.path.join(self.path, folder)
+                    os.makedirs(destination_folder, exist_ok=True)
+                    dest_path = os.path.join(destination_folder, item)
+
+                    base, extn = os.path.splitext(item)
+                    counter = 1
+
+                    while os.path.exists(dest_path):
+                        new_name = f"{base}_{counter}{extn}"
+                        dest_path = os.path.join(destination_folder, new_name)
+                        counter += 1
+
+                    if self.dry_run:
+                        # Always show dry-run actions, even if not verbose
+                        print(f"[Dry Run] Would move: {item} → {folder}")
+                        moved_any = True
+                    else:
+                        shutil.move(full_path, dest_path)
+                        # Only show actual moves when verbose
+                        if self.verbose:
+                            print(f"Moved: {item} → {folder}")
+                        moved_any = True
+
+                    break  # Stop after first match
+            if not matched and self.verbose:
+                print(f"[Verbose] No category for: {item}")
+
+        if not moved_any:
+            print("No files matched any category or needed to be moved.")
 
 
-    for item in items:
-        full_path = os.path.join(folder_name, item)
-
-        if not os.path.isfile(full_path):
-            continue  # Skip folders
-
-        ext = os.path.splitext(item)[1].lower()
-
-        for folder, extensions in FILE_MAP.items():
-            if ext in extensions:
-                destination_folder = os.path.join(folder_name, folder)
-                os.makedirs(destination_folder, exist_ok=True)
-                dest_path = os.path.join(destination_folder, item)
-                base, extn = os.path.splitext(item)
-                counter = 1
-
-                while os.path.exists(dest_path):
-                    new_name = f"{base}_{counter}{extn}"
-                    dest_path = os.path.join(destination_folder, new_name)
-                    counter += 1
-
-
-                if dry_run:
-                    print(f"[Dry Run] Would move: {item} → {folder}")
-                else:
-                    shutil.move(full_path, dest_path)
-                    if verbose:
-                        print(f"Moved: {item} → {folder}")
-
-
+# 🚀 Run as script
 if __name__ == '__main__':
     args = parse_args()
-    move_file_type(args.path, dry_run = args.dry_run,verbose= args.verbose)
+    organizer = FileOrganizer(args.path, dry_run=args.dry_run, verbose=args.verbose)
+    organizer.organize()
 
-    #python pyorganize.py --path C:\Users\BILAL\Downloads --dry_run --verbose
+
+    #python pyorganize.py --path C:\Users\BILAL\Downloads --verbose
 
