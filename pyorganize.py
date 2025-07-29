@@ -18,7 +18,7 @@
 # 📌 Milestones:
 # [ ] Detect and move .pdf files into a "PDF Files" folder✅
 # [ ] Add support for other file types using a dictionary (Images, Videos, Docs, etc.)✅
-# [ ] Implement command-line arguments (target folder, dry-run, etc.)
+# [ ] Implement command-line arguments (target folder, dry-run, etc.)✅
 # [ ] Refactor into functions and use OOP for extensibility
 # [ ] Add unit tests using PyTest
 # [ ] Add logging and error handling
@@ -44,6 +44,8 @@
 
 import os
 import shutil
+import argparse
+
 
 FILE_MAP = {
     # Documents
@@ -79,8 +81,14 @@ FILE_MAP = {
     "Other Files": [".log", ".bak", ".tmp"]
 }
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Organize Your Files if you give folder Extension")
+    parser.add_argument("--path", type=str,required= True , help="Folder To scan")
+    parser.add_argument("--dry_run", action="store_true", help="Show actions without moving files.")
+    parser.add_argument("--verbose", action="store_true", help="Print Each File Which is being Moved")
+    return parser.parse_args()
 
-def move_file_type(folder_name):
+def move_file_type(folder_name, dry_run = False, verbose = False):
 
     try:
         items = os.listdir(folder_name)
@@ -112,10 +120,18 @@ def move_file_type(folder_name):
                     dest_path = os.path.join(destination_folder, new_name)
                     counter += 1
 
-                shutil.move(full_path, dest_path)
-                print(f"Moved: {item} → {folder}")
+
+                if dry_run:
+                    print(f"[Dry Run] Would move: {item} → {folder}")
+                else:
+                    shutil.move(full_path, dest_path)
+                    if verbose:
+                        print(f"Moved: {item} → {folder}")
 
 
 if __name__ == '__main__':
-    folder_to_scan = input("Enter The Folder in which You Want to Arrange Your Pdf Into One Folder: ")
-    move_file_type(folder_to_scan)
+    args = parse_args()
+    move_file_type(args.path, dry_run = args.dry_run,verbose= args.verbose)
+
+    #python pyorganize.py --path C:\Users\BILAL\Downloads --dry_run --verbose
+
