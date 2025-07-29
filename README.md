@@ -1,15 +1,8 @@
 # pyorganize
 
-
 ---
 
-### 📝 **Short Description** *(for PyPI title and GitHub tagline)*:
-
-> A lightweight Python CLI tool to automatically organize files in your folders by type, extension, or custom rules.
-
----
-
-### 📄 **Full Description** *(for README.md or package long description)*:
+### 📄 **Description**:
 
 > **pyorganize** is a Python-based command-line tool that scans and organizes your files into neatly categorized folders. It helps clean up cluttered directories like `Downloads`, `Desktop`, or project workspaces with just one command.
 
