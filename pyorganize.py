@@ -19,7 +19,7 @@
 # [ ] Detect and move .pdf files into a "PDF Files" folder✅
 # [ ] Add support for other file types using a dictionary (Images, Videos, Docs, etc.)✅
 # [ ] Implement command-line arguments (target folder, dry-run, etc.)✅
-# [ ] Refactor into functions and use OOP for extensibility
+# [ ] Refactor into functions and use OOP for extensibility✅
 # [ ] Add unit tests using PyTest
 # [ ] Add logging and error handling
 # [ ] Set up GitHub repo and CI pipeline (GitHub Actions)
